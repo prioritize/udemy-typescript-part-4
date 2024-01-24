@@ -1,7 +1,7 @@
 import {createContext, type ReactNode, useContext, useReducer} from "react";
 import Timer from "../components/Timer.tsx";
 
-interface Timer {
+export interface Timer {
     name: string,
     duration: number,
 }

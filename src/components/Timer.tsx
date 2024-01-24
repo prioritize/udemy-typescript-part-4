@@ -1,9 +1,40 @@
 import Container from './UI/Container.tsx';
+import {type Timer as TimerProps, useTimersContext} from "../store/timers-context.tsx";
+import {useEffect, useRef, useState} from "react";
 
-export default function Timer() {
-  return (
-    <Container as="article">
-      <h2>TODO: TIMER NAME</h2>
-    </Container>
-  );
+export default function Timer({name, duration}: TimerProps) {
+    const [remainingTime, setRemainingTime] = useState(duration * 1000);
+    const interval = useRef<number | null>(null);
+    const {isRunning} = useTimersContext();
+    useEffect(() => {
+        let timer: number;
+        if (isRunning) {
+            timer = setInterval(function () {
+                setRemainingTime(prevTime => {
+                        if (prevTime <= 0) {
+                            return prevTime;
+                        }
+                        return prevTime - 50;
+                    }
+                );
+            }, 50);
+            interval.current = timer;
+        } else if (interval.current) {
+            clearInterval(interval.current);
+        }
+        return () => clearInterval(timer);
+    }, [isRunning]);
+    if (remainingTime <= 0 && interval.current) {
+        clearInterval(interval.current);
+    }
+    const formattedRemainingTime = (remainingTime / 1000).toFixed(2);
+    return (
+        <Container as="article">
+            <h2>{name}</h2>
+            <p>
+                <progress max={duration * 1000} value={remainingTime}></progress>
+            </p>
+            <p>{formattedRemainingTime}</p>
+        </Container>
+    );
 }
